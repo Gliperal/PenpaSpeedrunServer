@@ -2301,7 +2301,7 @@ class Puzzle {
         return [...new Set(solution)];
     }
 
-    make_solution() {
+    make_solution(ignore_pencil_marks = false) {
         let checkall = this.checkall_status();
 
         if (!this.multisolution) {
@@ -2393,7 +2393,7 @@ class Puzzle {
                         } else if (!isNaN(this[pu].number[i][0]) || !this[pu].number[i][0].match(/[^A-Za-z]+/)) {
                             // ((Green or light blue or dark blue or red) and (Normal, M, S, L))
                             if ((this[pu].number[i][1] === 2 || this[pu].number[i][1] === 8 || this[pu].number[i][1] === 9 || this[pu].number[i][1] === 10) &&
-                                (this[pu].number[i][2] === "1" || this[pu].number[i][2] === "5" || this[pu].number[i][2] === "6" || this[pu].number[i][2] === "10")) {
+                                (this[pu].number[i][2] === "1" || (!ignore_pencil_marks && (this[pu].number[i][2] === "5" || this[pu].number[i][2] === "6" || this[pu].number[i][2] === "10")))) {
                                 if ($('#genre_tags_opt').select2("val").includes("alphabet")) {
                                     let alphabet = this[pu].number[i][0];
                                     if (alphabet.match(/[a-zA-Z]/g)) {
@@ -2406,8 +2406,9 @@ class Puzzle {
                         } else if ($('#genre_tags_opt').select2("val").includes("non-alphanumeric")) {
                             // ((Green or light blue or dark blue or red) and (Normal, M, S, L))
                             if ((this[pu].number[i][1] === 2 || this[pu].number[i][1] === 8 || this[pu].number[i][1] === 9 || this[pu].number[i][1] === 10) &&
-                                (this[pu].number[i][2] === "1" || this[pu].number[i][2] === "5" || this[pu].number[i][2] === "6" || this[pu].number[i][2] === "10")) {
-                                sol[4].push(i + "," + this[pu].number[i][0]);
+                                (this[pu].number[i][2] === "1" || (!ignore_pencil_marks && (this[pu].number[i][2] === "5" || this[pu].number[i][2] === "6" || this[pu].number[i][2] === "10")))) {
+                                    console.log(2, this[pu].number[i]);
+                                    sol[4].push(i + "," + this[pu].number[i][0]);
                             }
                         }
                     }
@@ -12845,10 +12846,16 @@ class Puzzle {
         if (this.max_progress === undefined)
             this.max_progress = 0;
         let full_solution;
+        let doubleDigits = false;
         try {
             full_solution = JSON.parse(this.solution);
+            for (let i = 0; i < full_solution[4].length; i++) {
+                let digit = full_solution[4][i];
+                if (digit.split(',').pop().length > 1)
+                    doubleDigits = true;
+            }
         } catch (e) { return; }
-        const my_solution = this.make_solution();
+        const my_solution = this.make_solution(!doubleDigits);
         let progress = 0;
         for (let i = 0; i < 6; i++) {
             for (let digit of my_solution[i]) {
