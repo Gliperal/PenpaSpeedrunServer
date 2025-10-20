@@ -1,4 +1,5 @@
-const MAX_EXPORT_LENGTH = 7360;
+﻿const MAX_EXPORT_LENGTH = 7360;
+let CELESTE_WEBSOCKET = null;
 
 class Point {
     constructor(x, y, type, adjacent, surround, use, neighbor = [], adjacent_dia = [], type2 = 0, index = null) {
@@ -12825,7 +12826,43 @@ class Puzzle {
         }
     }
 
+    celeste_websocket_init() {
+        const wsUri = "ws://10.160.0.181:4242";
+        CELESTE_WEBSOCKET = new WebSocket(wsUri);
+        CELESTE_WEBSOCKET.addEventListener("open", () => {
+            console.log("Celeste websocket connected.");
+            window.addEventListener("beforeunload", function(e){
+                CELESTE_WEBSOCKET.send("close");
+            });
+        });
+    }
+
+    track_progress() {
+        if (CELESTE_WEBSOCKET === null) {
+            this.celeste_websocket_init();
+            return;
+        }
+        if (this.max_progress === undefined)
+            this.max_progress = 0;
+        const full_solution = JSON.parse(this.solution);
+        const my_solution = this.make_solution();
+        let progress = 0;
+        for (let i = 0; i < 6; i++) {
+            for (let digit of my_solution[i]) {
+                if (full_solution[i].includes(digit)) {
+                    progress++;
+                    if (progress > this.max_progress) {
+                        this.max_progress = progress;
+                        console.log(progress);
+                        CELESTE_WEBSOCKET.send("dash");
+                    }
+                }
+            }
+        }
+    }
+
     check_solution() {
+        this.track_progress();
         if (!this.multisolution) {
             if (this.solution) {
                 var text = JSON.stringify(this.make_solution());
