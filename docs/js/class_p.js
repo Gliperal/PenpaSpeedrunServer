@@ -12844,7 +12844,9 @@ class Puzzle {
         }
         if (this.max_progress === undefined)
             this.max_progress = 0;
-        const full_solution = JSON.parse(this.solution);
+        try {
+            let full_solution = JSON.parse(this.solution);
+        } catch (e) { return; }
         const my_solution = this.make_solution();
         let progress = 0;
         for (let i = 0; i < 6; i++) {
