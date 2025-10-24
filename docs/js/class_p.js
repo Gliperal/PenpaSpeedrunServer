@@ -12843,6 +12843,10 @@ class Puzzle {
             this.celeste_websocket_init();
             return;
         }
+        if (CELESTE_WEBSOCKET.readyState !== WebSocket.OPEN) {
+            // still connecting
+            return;
+        }
         if (this.max_progress === undefined)
             this.max_progress = 0;
         let full_solution;
