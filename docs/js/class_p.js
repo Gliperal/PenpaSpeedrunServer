@@ -12863,15 +12863,13 @@ class Puzzle {
         let progress = 0;
         for (let i = 0; i < 6; i++) {
             for (let digit of my_solution[i]) {
-                if (full_solution[i].includes(digit)) {
+                if (full_solution[i].includes(digit))
                     progress++;
-                    if (progress > this.max_progress) {
-                        this.max_progress = progress;
-                        console.log(progress);
-                        CELESTE_WEBSOCKET.send("dash");
-                    }
-                }
             }
+        }
+        if (progress > this.max_progress) {
+            CELESTE_WEBSOCKET.send('dash' + (progress - this.max_progress) + ',');
+            this.max_progress = progress;
         }
     }
 
